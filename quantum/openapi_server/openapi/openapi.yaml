@@ -1,0 +1,175 @@
+openapi: 3.0.2
+info:
+  contact:
+    email: info@spilab.es
+    name: Spilab
+    url: https://spilab.es
+  description: This API enables the generation of quantum services.
+  termsOfService: https://quantum.spilab.es/terms
+  title: Quantum Services
+  version: "1.0"
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: /
+tags:
+- description: Everything about your Quantum Service
+  name: quantum
+- description: Everything about your quantum service code and circuits
+  name: quantum_code
+paths:
+  /circuit/integerFactorization:
+    get:
+      description: ""
+      operationId: factorization_circuit
+      parameters:
+      - deprecated: true
+        description: Name of the machine where to execute
+        explode: false
+        in: query
+        name: machine
+        required: true
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          description: successful operation
+        "405":
+          description: Invalid execution
+      summary: Get the circuit implementation for integer factorization
+      tags:
+      - quantum_code
+      x-quantumCode: "qreg_q = QuantumRegister(5, 'q')\n    creg_c = ClassicalRegister(5,\
+        \ 'c')\n    circuit = QuantumCircuit(qreg_q, creg_c)\n    backend = Aer.get_backend(\"\
+        qasm_simulator\")\n    job = execute(circuit, backend, shots = 100)\n    result\
+        \ = job.result()\n    counts = result.get_counts()\n    return counts\n"
+      x-provider: ibm
+      x-openapi-router-controller: openapi_server.controllers.quantum_code_controller
+      x-quantum-imports: "from qiskit import execute, QuantumRegister, ClassicalRegister,\
+        \ QuantumCircuit, Aer\nfrom numpy import pi\n"
+  /circuit/randomNumber:
+    get:
+      description: ""
+      operationId: random_number_circuit
+      parameters:
+      - deprecated: true
+        description: Name of the machine where to execute
+        explode: false
+        in: query
+        name: machine
+        required: true
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          description: successful operation
+        "405":
+          description: Invalid execution
+      summary: Get the circuit implementation for random numbers
+      tags:
+      - quantum_code
+      x-quantumCode: "gate_machines_arn= { \"riggeti_aspen8\":\"arn:aws:braket:::device/qpu/rigetti/Aspen-8\"\
+        , \"riggeti_aspen9\":\"arn:aws:braket:::device/qpu/rigetti/Aspen-9\", \"riggeti_aspen11\"\
+        :\"arn:aws:braket:::device/qpu/rigetti/Aspen-11\", \"riggeti_aspen_m1\":\"\
+        arn:aws:braket:us-west-1::device/qpu/rigetti/Aspen-M-1\", \"oqc_lucy\":\"\
+        arn:aws:braket:eu-west-2::device/qpu/oqc/Lucy\", \"borealis\":\"arn:aws:braket:us-east-1::device/qpu/xanadu/Borealis\"\
+        , \"ionq\":\"arn:aws:braket:::device/qpu/ionq/ionQdevice\", \"sv1\":\"arn:aws:braket:::device/quantum-simulator/amazon/sv1\"\
+        , \"tn1\":\"arn:aws:braket:::device/quantum-simulator/amazon/tn1\", \"local\"\
+        :\"local\"}\n    s3_folder = (\"amazon-braket-7c2f2fa45286\", \"api\")\n \
+        \   circuit = Circuit()\n    circuit.h(0)\n    circuit.h(1)\n    circuit.h(2)\n\
+        \    circuit.h(3)\n    circuit.h(4)\n    return executeAWS(s3_folder, gate_machines_arn[machine],\
+        \ circuit)\n"
+      x-provider: aws
+      x-openapi-router-controller: openapi_server.controllers.quantum_code_controller
+      x-quantum-imports: |
+        from braket.circuits import Gate
+        from braket.circuits import Circuit
+        from braket.devices import LocalSimulator
+        from braket.aws import AwsDevice
+  /findByCategory:
+    get:
+      description: Multiple status values can be provided with comma separated strings
+      operationId: find_service_by_category
+      parameters:
+      - deprecated: true
+        description: Status values that need to be considered for filter
+        explode: false
+        in: query
+        name: qua
+        required: true
+        schema:
+          items:
+            enum:
+            - annealing
+            - gate-based
+            type: string
+          type: array
+        style: form
+      responses:
+        "200":
+          content:
+            application/xml:
+              schema:
+                items:
+                  $ref: '#/components/schemas/quantum'
+                type: array
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/quantum'
+                type: array
+          description: successful operation
+        "400":
+          description: Invalid status value
+      summary: Finds quantum service by category
+      tags:
+      - quantum
+      x-openapi-router-controller: openapi_server.controllers.quantum_controller
+components:
+  schemas:
+    Category:
+      description: A category for a quantum code
+      example:
+        name: name
+        id: 6
+      properties:
+        id:
+          format: int64
+          title: id
+          type: integer
+        name:
+          pattern: "^[a-zA-Z0-9]+[a-zA-Z0-9\\.\\-_]*[a-zA-Z0-9]+$"
+          title: name
+          type: string
+      title: quantum category
+      type: object
+      xml:
+        name: Category
+    quantum:
+      description: quantum code
+      example:
+        name: gate-based
+        id: 0
+        category:
+          name: name
+          id: 6
+      properties:
+        id:
+          format: int64
+          title: id
+          type: integer
+        category:
+          $ref: '#/components/schemas/Category'
+        name:
+          example: gate-based
+          title: name
+          type: string
+      required:
+      - name
+      title: quantum code
+      type: object
+      xml:
+        name: quantum
