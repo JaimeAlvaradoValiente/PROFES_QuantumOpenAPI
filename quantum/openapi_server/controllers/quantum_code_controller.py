@@ -1,10 +1,12 @@
 import connexion
 import six
+import time
+import os
 
 from openapi_server import util
 
 def executeAWS(s3_folder, machine, circuit):
-
+    os.environ['AWS_DEFAULT_REGION'] = 'us-west-2'
     if machine=="local":
         device = LocalSimulator()
         result = device.run(circuit, shots=100000).result()
