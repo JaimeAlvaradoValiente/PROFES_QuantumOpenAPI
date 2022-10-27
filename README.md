@@ -1,5 +1,5 @@
-# PROFES_QuantumOpenAPI
-Towards an improvement of Hybrid Classical-Quantum Services definition processes using OpenAPI
+# QuantumOpenAPI
+Using Open API for the development of Hybrid Classical-Quantum Services
 
 In this repository are available: 
 
