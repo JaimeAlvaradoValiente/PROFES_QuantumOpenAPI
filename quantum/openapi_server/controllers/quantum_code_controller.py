@@ -98,8 +98,6 @@ def grover_circuit_ibm(shots, machine=None):  # noqa: E501
 
     :rtype: None
     """
-
-
     qreg_q = QuantumRegister(5, 'q')
     creg_c = ClassicalRegister(5, 'c')
     circuit = QuantumCircuit(qreg_q, creg_c)
@@ -119,6 +117,3 @@ def grover_circuit_ibm(shots, machine=None):  # noqa: E501
     result = job.result()
     counts = result.get_counts()
     return counts
-
-    #return 'do some magic!'
-
