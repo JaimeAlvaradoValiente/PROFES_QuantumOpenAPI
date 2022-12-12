@@ -11,6 +11,8 @@ This example uses the [Connexion](https://github.com/zalando/connexion) library 
 Python 3.5.2+
 
 ## Usage
+Previously execute, you must configure credentials and region to access AWS using boto3 in the files ~/.aws/credentials and ~/.aws/config, respectively
+
 To run the server, please execute the following from the root directory:
 
 ```
